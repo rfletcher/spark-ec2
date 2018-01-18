@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -x
+
 pushd /spark-home > /dev/null
 
 if [ -d "persistent-hdfs" ]; then
@@ -44,6 +47,7 @@ case "$HADOOP_MAJOR_VERSION" in
      echo "ERROR: Unknown Hadoop version"
      return 1
 esac
+
 /spark-home/spark-ec2/copy-dir /spark-home/persistent-hdfs
 
 popd > /dev/null

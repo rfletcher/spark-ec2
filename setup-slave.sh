@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -x
+
 # Disable Transparent Huge Pages (THP)
 # THP can result in system thrashing (high sys usage) due to frequent defrags of memory.
 # Most systems recommends turning THP off.
@@ -10,6 +13,8 @@ fi
 # Make sure we are in the spark-ec2 directory
 pushd /spark-home/spark-ec2 > /dev/null
 
+source setup-common.sh
+source /spark-home/.bash_profile
 source ec2-variables.sh
 
 # Set hostname based on EC2 private DNS name, so that it is set correctly
@@ -31,29 +36,31 @@ if [[ $instance_type == r3* || $instance_type == i2* || $instance_type == hi1* ]
   # Format & mount using ext4, which has the best performance among ext3, ext4, and xfs based
   # on our shuffle heavy benchmark
   EXT4_MOUNT_OPTS="defaults,noatime"
-  rm -rf /spark*
-  mkdir /spark
+  rm -rf /spark-work*
+  mkdir /spark-work
   # To turn TRIM support on, uncomment the following line.
-  #echo '/dev/sdb /spark  ext4  defaults,noatime,discard 0 0' >> /etc/fstab
+  #echo '/dev/sdb /spark-work  ext4  defaults,noatime,discard 0 0' >> /etc/fstab
   mkfs.ext4 -E lazy_itable_init=0,lazy_journal_init=0 /dev/sdb
-  mount -o $EXT4_MOUNT_OPTS /dev/sdb /spark
+  mount -o $EXT4_MOUNT_OPTS /dev/sdb /spark-work
 
   if [[ $instance_type == "r3.8xlarge" || $instance_type == "hi1.4xlarge" ]]; then
-    mkdir /mnt2
+    mkdir /spark-work2
     # To turn TRIM support on, uncomment the following line.
-    #echo '/dev/sdc /mnt2  ext4  defaults,noatime,discard 0 0' >> /etc/fstab
+    #echo '/dev/sdc /spark-work2  ext4  defaults,noatime,discard 0 0' >> /etc/fstab
     if [[ $instance_type == "r3.8xlarge" ]]; then
       mkfs.ext4 -E lazy_itable_init=0,lazy_journal_init=0 /dev/sdc      
-      mount -o $EXT4_MOUNT_OPTS /dev/sdc /mnt2
+      mount -o $EXT4_MOUNT_OPTS /dev/sdc /spark-work2
     fi
     # To turn TRIM support on, uncomment the following line.
-    #echo '/dev/sdf /mnt2  ext4  defaults,noatime,discard 0 0' >> /etc/fstab
+    #echo '/dev/sdf /spark-work2  ext4  defaults,noatime,discard 0 0' >> /etc/fstab
     if [[ $instance_type == "hi1.4xlarge" ]]; then
       mkfs.ext4 -E lazy_itable_init=0,lazy_journal_init=0 /dev/sdf      
-      mount -o $EXT4_MOUNT_OPTS /dev/sdf /mnt2
+      mount -o $EXT4_MOUNT_OPTS /dev/sdf /spark-work2
     fi    
   fi
 fi
+
+mkdir /spark-work || true
 
 # Mount options to use for ext3 and xfs disks (the ephemeral disks
 # are ext3, but we use xfs for EBS volumes to format them faster)
@@ -66,7 +73,9 @@ function setup_ebs_volume {
     # Check if device is already formatted
     if ! blkid $device; then
       mkdir $mount_point
-      yum install -q -y xfsprogs
+      DEBIAN_FRONTEND=noninteractive sudo apt-get install \
+        --assume-yes --allow-downgrades --allow-remove-essential --allow-change-held-packages \
+        xfsprogs
       if mkfs.xfs -q $device; then
         mount -o $XFS_MOUNT_OPTS $device $mount_point
         chmod -R a+w $mount_point
@@ -104,14 +113,17 @@ if [[ -e /vol3 && ! -e /vol ]]; then
 fi
 
 # Make data dirs writable by non-root users, such as CDH's hadoop user
-chmod -R a+w /spark*
+chmod a+x /spark-home
+chmod -R a+w /spark-work*
 
 # Remove ~/.ssh/known_hosts because it gets polluted as you start/stop many
 # clusters (new machines tend to come up under old hostnames)
 rm -f /spark-home/.ssh/known_hosts
 
 # Create swap space on /spark
-/spark-home/spark-ec2/create-swap.sh $SWAP_MB
+if ! [[ -e /spark-work/swap ]]; then
+  /spark-home/spark-ec2/create-swap.sh $SWAP_MB
+fi
 
 # Allow memory to be over committed. Helps in pyspark where we fork
 echo 1 > /proc/sys/vm/overcommit_memory

@@ -95,7 +95,7 @@ IFS=
 #if [ "$YARN_LOG_DIR" = "" ]; then
 #  YARN_LOG_DIR="$HADOOP_YARN_HOME/logs"
 #fi
-export YARN_LOG_DIR=/spark/ephemeral-hdfs/logs
+export YARN_LOG_DIR=/spark-work/ephemeral-hdfs/logs
 
 if [ "$YARN_LOGFILE" = "" ]; then
   YARN_LOGFILE='yarn.log'

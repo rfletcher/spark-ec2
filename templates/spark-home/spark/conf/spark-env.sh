@@ -24,6 +24,8 @@ wget -q -O - http://169.254.169.254/latest/meta-data/local-ipv4`
 # Used for YARN model
 export YARN_CONF_DIR="/spark-home/ephemeral-hdfs/conf"
 
+export SPARK_SSH_OPTS="-l spark -i /spark-home/.ssh/id_rsa -o StrictHostKeyChecking=no"
+
 # Set a high ulimit for large shuffles, only root can do this
 if [ $(id -u) == "0" ]
 then

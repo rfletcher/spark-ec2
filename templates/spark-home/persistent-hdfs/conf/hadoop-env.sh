@@ -8,11 +8,11 @@
 # The java implementation to use.  Required.
 export JAVA_HOME={{java_home}}
 
+export HADOOP_HOME="/spark-home/persistent-hdfs"
+export HADOOP_MAPREDUCE_HOME="/spark-home/mapreduce"
+
 # Extra Java CLASSPATH elements.  Optional.
 # export HADOOP_CLASSPATH=
-
-export HADOOP_HOME="/spark-home/ephemeral-hdfs"
-export HADOOP_MAPREDUCE_HOME="/spark-home/mapreduce"
 
 # The maximum amount of heap to use, in MB. Default is 1000.
 export HADOOP_HEAPSIZE=1000
@@ -33,11 +33,11 @@ export HADOOP_JOBTRACKER_OPTS="-Dcom.sun.management.jmxremote $HADOOP_JOBTRACKER
 
 # Extra ssh options.  Empty by default.
 # export HADOOP_SSH_OPTS="-o ConnectTimeout=1 -o SendEnv=HADOOP_CONF_DIR"
-export HADOOP_SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=5"
+export HADOOP_SSH_OPTS="-i /spark-home/.ssh/id_rsa -l spark -o StrictHostKeyChecking=no -o ConnectTimeout=5"
 
 # Where log files are stored.  $HADOOP_HOME/logs by default.
 # export HADOOP_LOG_DIR=${HADOOP_HOME}/logs
-export HADOOP_LOG_DIR=/spark/ephemeral-hdfs/logs
+export HADOOP_LOG_DIR=/spark-work/persistent-hdfs/logs
 
 # File naming remote slave hosts.  $HADOOP_HOME/conf/slaves by default.
 # export HADOOP_SLAVES=${HADOOP_HOME}/conf/slaves
@@ -51,7 +51,7 @@ export HADOOP_LOG_DIR=/spark/ephemeral-hdfs/logs
 # export HADOOP_SLAVE_SLEEP=0.1
 
 # The directory where pid files are stored. /tmp by default.
-export HADOOP_PID_DIR=/var/hadoop/ephemeral-hdfs/pids
+export HADOOP_PID_DIR=/var/hadoop/persistent-hdfs/pids
 
 # A string representing this instance of hadoop. $USER by default.
 # export HADOOP_IDENT_STRING=$USER

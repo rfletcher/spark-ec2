@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -x
+
 pushd /spark-home > /dev/null
 
 if [ -d "tachyon" ]; then

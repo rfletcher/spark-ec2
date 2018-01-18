@@ -4,6 +4,7 @@
 # This has only been tested with Amazon Linux AMI 2014.03.2 
 
 set -e
+set -x
 
 if [ "$(id -u)" != "0" ]; then
    echo "This script must be run as root" 1>&2
@@ -36,11 +37,11 @@ sudo sed -i 's/.*ephemeral.*//g' /etc/cloud/cloud.cfg
 sudo sed -i 's/.*swap.*//g' /etc/cloud/cloud.cfg
 
 echo "mounts:" >> /etc/cloud/cloud.cfg
-echo " - [ ephemeral0, /spark, auto, \"defaults,noatime\", "\
+echo " - [ ephemeral0, /spark-work, auto, \"defaults,noatime\", "\
   "\"0\", \"0\" ]" >> /etc/cloud.cloud.cfg
 
 for x in {1..23}; do
-  echo " - [ ephemeral$x, /spark$((x + 1)), auto, "\
+  echo " - [ ephemeral$x, /spark-work$((x + 1)), auto, "\
     "\"defaults,noatime\", \"0\", \"0\" ]" >> /etc/cloud/cloud.cfg
 done
 

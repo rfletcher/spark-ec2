@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -x
+
 BIN_FOLDER="/spark-home/spark/sbin"
 
 if [[ "0.7.3 0.8.0 0.8.1" =~ $SPARK_VERSION ]]; then
@@ -19,15 +22,15 @@ echo "spark://""`cat /spark-home/spark-ec2/masters`"":7077" > /spark-home/spark-
 # workers.
 
 # Stop anything that is running
-$BIN_FOLDER/stop-all.sh
+sudo $BIN_FOLDER/stop-all.sh
 
 sleep 2
 
 # Start Master
-$BIN_FOLDER/start-master.sh
+sudo $BIN_FOLDER/start-master.sh
 
 # Pause
 sleep 20
 
 # Start Workers
-$BIN_FOLDER/start-slaves.sh
+sudo $BIN_FOLDER/start-slaves.sh

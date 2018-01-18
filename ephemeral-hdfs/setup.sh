@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -x
+
 EPHEMERAL_HDFS=/spark-home/ephemeral-hdfs
 
 # Set hdfs url to make it easier
@@ -11,19 +14,19 @@ source ./setup-slave.sh
 
 for node in $SLAVES $OTHER_MASTERS; do
   echo $node
-  ssh -t -t $SSH_OPTS root@$node "/spark-home/spark-ec2/ephemeral-hdfs/setup-slave.sh" & sleep 0.3
+  ssh -t -t $SSH_OPTS $node "/spark-home/spark-ec2/ephemeral-hdfs/setup-slave.sh" & sleep 0.3
 done
 wait
 
 /spark-home/spark-ec2/copy-dir $EPHEMERAL_HDFS/conf
 
-NAMENODE_DIR=/spark/ephemeral-hdfs/dfs/name
+NAMENODE_DIR=/spark-work/ephemeral-hdfs/dfs/name
 
 if [ -f "$NAMENODE_DIR/current/VERSION" ] && [ -f "$NAMENODE_DIR/current/fsimage" ]; then
   echo "Hadoop namenode appears to be formatted: skipping"
 else
   echo "Formatting ephemeral HDFS namenode..."
-  $EPHEMERAL_HDFS/bin/hadoop namenode -format
+  sudo $EPHEMERAL_HDFS/bin/hadoop namenode -format -force
 fi
 
 echo "Starting ephemeral HDFS..."
@@ -31,15 +34,15 @@ echo "Starting ephemeral HDFS..."
 # This is different depending on version.
 case "$HADOOP_MAJOR_VERSION" in
   1)
-    $EPHEMERAL_HDFS/bin/start-dfs.sh
+    sudo $EPHEMERAL_HDFS/bin/start-dfs.sh
     ;;
   2)
-    $EPHEMERAL_HDFS/sbin/start-dfs.sh
+    sudo $EPHEMERAL_HDFS/sbin/start-dfs.sh
     ;;
   yarn) 
-    $EPHEMERAL_HDFS/sbin/start-dfs.sh
+    sudo $EPHEMERAL_HDFS/sbin/start-dfs.sh
     echo "Starting YARN"
-    $EPHEMERAL_HDFS/sbin/start-yarn.sh
+    sudo $EPHEMERAL_HDFS/sbin/start-yarn.sh
     ;;
   *)
      echo "ERROR: Unknown Hadoop version"

@@ -848,16 +848,25 @@ def setup_cluster(conn, master_nodes, slave_nodes, opts, deploy_ssh_key):
 
     # NOTE: We should clone the repository before running deploy_files to
     # prevent ec2-variables.sh from being overwritten
-    print("Cloning spark-ec2 scripts from {r}/tree/{b} on master...".format(
-        r=opts.spark_ec2_git_repo, b=opts.spark_ec2_git_branch))
-    ssh(
-        host=master,
-        opts=opts,
-        command="rm -rf spark-ec2"
-        + " && "
-        + "git clone {r} -b {b} spark-ec2".format(r=opts.spark_ec2_git_repo,
-                                                  b=opts.spark_ec2_git_branch)
-    )
+    # print("Cloning spark-ec2 scripts from {r}/tree/{b} on master...".format(
+    #     r=opts.spark_ec2_git_repo, b=opts.spark_ec2_git_branch))
+    # ssh(
+    #     host=master,
+    #     opts=opts,
+    #     command="rm -rf spark-ec2"
+    #     + " && "
+    #     + "git clone {r} -b {b} spark-ec2".format(r=opts.spark_ec2_git_repo,
+    #                                               b=opts.spark_ec2_git_branch)
+    # )
+
+    print("Copying spark-ec2 to master...")
+    command = [
+        'rsync', '-aK', '--delete',
+        '-e', stringify_command(ssh_command(opts)),
+        "%s/" % SPARK_EC2_DIR,
+        "%s@%s:spark-ec2/" % (opts.user, master)
+    ]
+    subprocess.check_call(command)
 
     print("Deploying files to master...")
     deploy_files(
@@ -960,8 +969,6 @@ def wait_for_cluster_state(conn, opts, cluster_instances, cluster_state):
 
         if cluster_state == 'ssh-ready':
             if all(i.state == 'running' for i in cluster_instances) and \
-               all(s.system_status.status == 'ok' for s in statuses) and \
-               all(s.instance_status.status == 'ok' for s in statuses) and \
                is_cluster_ssh_available(cluster_instances, opts):
                 break
         else:
@@ -1062,14 +1069,14 @@ def deploy_files(conn, root_dir, opts, master_nodes, slave_nodes, modules):
     active_master = get_dns_name(master_nodes[0], opts.private_ips)
 
     num_disks = get_num_disks(opts.instance_type)
-    hdfs_data_dirs = "/spark/ephemeral-hdfs/data"
-    mapred_local_dirs = "/spark/hadoop/mrlocal"
-    spark_local_dirs = "/spark/spark"
+    hdfs_data_dirs = "/spark-work/ephemeral-hdfs/data"
+    mapred_local_dirs = "/spark-work/hadoop/mrlocal"
+    spark_local_dirs = "/spark-work/spark"
     if num_disks > 1:
         for i in range(2, num_disks + 1):
-            hdfs_data_dirs += ",/spark%d/ephemeral-hdfs/data" % i
-            mapred_local_dirs += ",/spark%d/hadoop/mrlocal" % i
-            spark_local_dirs += ",/spark%d/spark" % i
+            hdfs_data_dirs += ",/spark-work%d/ephemeral-hdfs/data" % i
+            mapred_local_dirs += ",/spark-work%d/hadoop/mrlocal" % i
+            spark_local_dirs += ",/spark-work%d/spark" % i
 
     cluster_url = "%s:7077" % active_master
 
@@ -1383,7 +1390,7 @@ def real_main():
             cluster_instances=(master_nodes + slave_nodes),
             cluster_state='ssh-ready'
         )
-        setup_cluster(conn, master_nodes, slave_nodes, opts, True)
+        setup_cluster(conn, master_nodes, slave_nodes, opts, False)
 
     elif action == "destroy":
         (master_nodes, slave_nodes) = get_existing_cluster(

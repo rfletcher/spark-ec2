@@ -1,6 +1,11 @@
 #!/bin/bash
 
-sudo yum install -y -q pssh
+set -e
+set -x
+
+sudo DEBIAN_FRONTEND=noninteractive apt-get install \
+  --assume-yes --allow-downgrades --allow-remove-essential --allow-change-held-packages \
+  pssh
 
 # usage: echo_time_diff name start_time end_time
 echo_time_diff () {
@@ -13,6 +18,7 @@ echo_time_diff () {
 # Make sure we are in the spark-ec2 directory
 pushd /spark-home/spark-ec2 > /dev/null
 
+source setup-common.sh
 # Load the environment variables specific to this AMI
 source /spark-home/.bash_profile
 
@@ -23,8 +29,8 @@ source ec2-variables.sh
 # even if the instance is restarted with a different private DNS name
 PRIVATE_DNS=`wget -q -O - http://169.254.169.254/latest/meta-data/local-hostname`
 PUBLIC_DNS=`wget -q -O - http://169.254.169.254/latest/meta-data/hostname`
-hostname $PRIVATE_DNS
-echo $PRIVATE_DNS > /etc/hostname
+sudo hostname $PRIVATE_DNS
+echo $PRIVATE_DNS | sudo tee /etc/hostname
 export HOSTNAME=$PRIVATE_DNS  # Fix the bash built-in hostname variable too
 
 echo "Setting up Spark on `hostname`..."
@@ -37,7 +43,7 @@ MASTERS=`cat masters`
 NUM_MASTERS=`cat masters | wc -l`
 OTHER_MASTERS=`cat masters | sed '1d'`
 SLAVES=`cat slaves`
-SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=5"
+SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5"
 
 if [[ "x$JAVA_HOME" == "x" ]] ; then
     echo "Expected JAVA_HOME to be set in .bash_profile!"
@@ -56,8 +62,8 @@ echo "RSYNC'ing /spark-home/spark-ec2 to other cluster nodes..."
 rsync_start_time="$(date +'%s')"
 for node in $SLAVES $OTHER_MASTERS; do
   echo $node
-  rsync -e "ssh $SSH_OPTS" -akz /spark-home/spark-ec2 $node:/spark-home &
-  scp $SSH_OPTS ~/.ssh/id_rsa $node:.ssh &
+  rsync -e "ssh $SSH_OPTS" -aKz /spark-home/spark-ec2 $node:/spark-home &
+  # scp $SSH_OPTS ~/.ssh/id_rsa $node:.ssh &
   sleep 0.1
 done
 wait
@@ -66,12 +72,12 @@ echo_time_diff "rsync /spark-home/spark-ec2" "$rsync_start_time" "$rsync_end_tim
 
 echo "Running setup-slave on all cluster nodes to mount filesystems, etc..."
 setup_slave_start_time="$(date +'%s')"
-pssh --inline \
+parallel-ssh --inline \
     --host "$MASTERS $SLAVES" \
-    --user root \
+    --user spark \
     --extra-args "-t -t $SSH_OPTS" \
     --timeout 0 \
-    "spark-ec2/setup-slave.sh"
+    "sudo spark-ec2/setup-slave.sh"
 setup_slave_end_time="$(date +'%s')"
 echo_time_diff "setup-slave" "$setup_slave_start_time" "$setup_slave_end_time"
 
@@ -105,12 +111,14 @@ chmod u+x /spark-home/spark/conf/spark-env.sh
 
 # Setup each module
 for module in $MODULES; do
-  echo "Setting up $module"
-  module_setup_start_time="$(date +'%s')"
-  source ./$module/setup.sh
-  sleep 0.1
-  module_setup_end_time="$(date +'%s')"
-  echo_time_diff "$module setup" "$module_setup_start_time" "$module_setup_end_time"
+  if [[ -e ./$module/setup.sh ]]; then
+    echo "Setting up $module"
+    module_setup_start_time="$(date +'%s')"
+    source ./$module/setup.sh
+    sleep 0.1
+    module_setup_end_time="$(date +'%s')"
+    echo_time_diff "$module setup" "$module_setup_start_time" "$module_setup_end_time"
+  fi
   cd /spark-home/spark-ec2  # guard against setup.sh changing the cwd
 done
 

@@ -22,7 +22,7 @@ else
   if [ -z "$JAVA_HOME" ]; then
     export JAVA_HOME=/usr/lib/jvm/java-1.7.0
   fi
-  export TACHYON_RAM_FOLDER=/spark/ramdisk
+  export TACHYON_RAM_FOLDER=/spark-work/ramdisk
 fi
 
 export JAVA="$JAVA_HOME/bin/java"

@@ -1,29 +1,38 @@
 #!/usr/bin/env bash
 
-# download rstudio 
-wget http://download2.rstudio.org/rstudio-server-rhel-0.99.446-x86_64.rpm
-sudo yum install --nogpgcheck -y rstudio-server-rhel-0.99.446-x86_64.rpm
+set -e
+set -x
+
+if ! sudo service rstudio-server status; then
+  # download rstudio 
+  DEBIAN_FRONTEND=noninteractive sudo apt-get install \
+    --assume-yes --allow-downgrades --allow-remove-essential --allow-change-held-packages \
+    r-base
+
+  wget http://download2.rstudio.org/rstudio-server-0.99.441-amd64.deb
+  sudo dpkg -i rstudio-server-0.99.441-amd64.deb
+fi
 
 # restart rstudio 
-rstudio-server restart 
+sudo service rstudio-server restart
 
 # add user for rstudio, user needs to supply password later on
-adduser rstudio
+sudo adduser --disabled-login --gecos "" rstudio || true
 
 # create a Rscript that connects to Spark, to help starting user
-cp /spark-home/spark-ec2/rstudio/startSpark.R /home/rstudio
+sudo cp /spark-home/spark-ec2/rstudio/startSpark.R /home/rstudio
 
 # make sure that the temp dirs exist and can be written to by any user
 # otherwise this will create a conflict for the rstudio user
 function create_temp_dirs {
   location=$1
   if [[ ! -e $location ]]; then
-    mkdir -p $location
+    sudo mkdir -p $location
   fi
-  chmod a+w $location
+  sudo chmod a+w $location
 }
 
-create_temp_dirs /spark/spark
-create_temp_dirs /mnt2/spark
-create_temp_dirs /mnt3/spark
-create_temp_dirs /mnt4/spark
+create_temp_dirs /spark-work/spark
+create_temp_dirs /spark-work2/spark
+create_temp_dirs /spark-work3/spark
+create_temp_dirs /spark-work4/spark

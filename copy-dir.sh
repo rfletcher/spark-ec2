@@ -1,5 +1,8 @@
 #!/bin/bash
 
+set -e
+set -x
+
 DELETE_FLAG=""
 
 usage() {
@@ -39,7 +42,7 @@ DEST=`dirname "$DIR"`
 
 SLAVES=`cat /spark-home/spark-ec2/slaves`
 
-SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=5"
+SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o ConnectTimeout=5"
 
 echo "RSYNC'ing $DIR to slaves..."
 for slave in $SLAVES; do
