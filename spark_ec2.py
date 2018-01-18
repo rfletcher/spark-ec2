@@ -281,13 +281,6 @@ def parse_args():
         help="If specified, launch slaves as spot instances with the given " +
              "maximum price (in dollars)")
     parser.add_option(
-        "--ganglia", action="store_true", default=True,
-        help="Setup Ganglia monitoring on cluster (default: %default). NOTE: " +
-             "the Ganglia page will be publicly accessible")
-    parser.add_option(
-        "--no-ganglia", action="store_false", dest="ganglia",
-        help="Disable Ganglia monitoring for the cluster")
-    parser.add_option(
         "-u", "--user", default="root",
         help="The SSH user you want to connect as (default: %default)")
     parser.add_option(
@@ -559,8 +552,6 @@ def launch_cluster(conn, opts, cluster_name):
         master_group.authorize('udp', 4242, 4242, authorized_address)
         # RM in YARN mode uses 8088
         master_group.authorize('tcp', 8088, 8088, authorized_address)
-        if opts.ganglia:
-            master_group.authorize('tcp', 5080, 5080, authorized_address)
     if slave_group.rules == []:  # Group was just now created
         if opts.vpc_id is None:
             slave_group.authorize(src_group=master_group)
@@ -851,9 +842,6 @@ def setup_cluster(conn, master_nodes, slave_nodes, opts, deploy_ssh_key):
     if opts.hadoop_major_version == "1":
         modules = list(filter(lambda x: x != "mapreduce", modules))
 
-    if opts.ganglia:
-        modules.append('ganglia')
-
     # Clear SPARK_WORKER_INSTANCES if running on YARN
     if opts.hadoop_major_version == "yarn":
         opts.worker_instances = ""
@@ -898,9 +886,6 @@ def setup_spark_cluster(master, opts):
     ssh(master, opts, "chmod u+x spark-ec2/setup.sh")
     ssh(master, opts, "spark-ec2/setup.sh")
     print("Spark standalone cluster started at http://%s:8080" % master)
-
-    if opts.ganglia:
-        print("Ganglia started at http://%s:5080/ganglia" % master)
 
 
 def is_ssh_available(host, opts, print_ssh_output=True):
