@@ -1,15 +1,15 @@
 #!/bin/bash
 
 # Setup ephemeral-hdfs
-mkdir -p /mnt/ephemeral-hdfs/logs
-mkdir -p /mnt/hadoop-logs
+mkdir -p /spark/ephemeral-hdfs/logs
+mkdir -p /spark/hadoop-logs
 
 # Setup yarn logs, local dirs
-mkdir -p /mnt/yarn-local
-mkdir -p /mnt/yarn-logs
+mkdir -p /spark/yarn-local
+mkdir -p /spark/yarn-logs
 
 # Create Hadoop and HDFS directories in a given parent directory
-# (for example /mnt, /mnt2, and so on)
+# (for example /spark, /mnt2, and so on)
 function create_hadoop_dirs {
   location=$1
   if [[ -e $location ]]; then
@@ -19,8 +19,8 @@ function create_hadoop_dirs {
   fi
 }
 
-# Set up Hadoop and Mesos directories in /mnt
-create_hadoop_dirs /mnt
+# Set up Hadoop and Mesos directories in /spark
+create_hadoop_dirs /spark
 create_hadoop_dirs /mnt2
 create_hadoop_dirs /mnt3
 create_hadoop_dirs /mnt4

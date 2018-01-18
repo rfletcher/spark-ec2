@@ -1077,14 +1077,14 @@ def deploy_files(conn, root_dir, opts, master_nodes, slave_nodes, modules):
     active_master = get_dns_name(master_nodes[0], opts.private_ips)
 
     num_disks = get_num_disks(opts.instance_type)
-    hdfs_data_dirs = "/mnt/ephemeral-hdfs/data"
-    mapred_local_dirs = "/mnt/hadoop/mrlocal"
-    spark_local_dirs = "/mnt/spark"
+    hdfs_data_dirs = "/spark/ephemeral-hdfs/data"
+    mapred_local_dirs = "/spark/hadoop/mrlocal"
+    spark_local_dirs = "/spark/spark"
     if num_disks > 1:
         for i in range(2, num_disks + 1):
-            hdfs_data_dirs += ",/mnt%d/ephemeral-hdfs/data" % i
-            mapred_local_dirs += ",/mnt%d/hadoop/mrlocal" % i
-            spark_local_dirs += ",/mnt%d/spark" % i
+            hdfs_data_dirs += ",/spark%d/ephemeral-hdfs/data" % i
+            mapred_local_dirs += ",/spark%d/hadoop/mrlocal" % i
+            spark_local_dirs += ",/spark%d/spark" % i
 
     cluster_url = "%s:7077" % active_master
 

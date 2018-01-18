@@ -24,12 +24,12 @@
   <!-- TODO: Should we use multiple local-dirs -->
   <property>
     <name>yarn.nodemanager.local-dirs</name>
-    <value>/mnt/yarn-local</value>
+    <value>/spark/yarn-local</value>
   </property>
 
   <property>
     <name>yarn.nodemanager.log-dirs</name>
-    <value>/mnt/yarn-logs</value>
+    <value>/spark/yarn-logs</value>
   </property>
 
   <property>

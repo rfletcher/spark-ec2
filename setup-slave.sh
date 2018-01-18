@@ -31,12 +31,12 @@ if [[ $instance_type == r3* || $instance_type == i2* || $instance_type == hi1* ]
   # Format & mount using ext4, which has the best performance among ext3, ext4, and xfs based
   # on our shuffle heavy benchmark
   EXT4_MOUNT_OPTS="defaults,noatime"
-  rm -rf /mnt*
-  mkdir /mnt
+  rm -rf /spark*
+  mkdir /spark
   # To turn TRIM support on, uncomment the following line.
-  #echo '/dev/sdb /mnt  ext4  defaults,noatime,discard 0 0' >> /etc/fstab
+  #echo '/dev/sdb /spark  ext4  defaults,noatime,discard 0 0' >> /etc/fstab
   mkfs.ext4 -E lazy_itable_init=0,lazy_journal_init=0 /dev/sdb
-  mount -o $EXT4_MOUNT_OPTS /dev/sdb /mnt
+  mount -o $EXT4_MOUNT_OPTS /dev/sdb /spark
 
   if [[ $instance_type == "r3.8xlarge" || $instance_type == "hi1.4xlarge" ]]; then
     mkdir /mnt2
@@ -104,13 +104,13 @@ if [[ -e /vol3 && ! -e /vol ]]; then
 fi
 
 # Make data dirs writable by non-root users, such as CDH's hadoop user
-chmod -R a+w /mnt*
+chmod -R a+w /spark*
 
 # Remove ~/.ssh/known_hosts because it gets polluted as you start/stop many
 # clusters (new machines tend to come up under old hostnames)
 rm -f /spark-home/.ssh/known_hosts
 
-# Create swap space on /mnt
+# Create swap space on /spark
 /spark-home/spark-ec2/create-swap.sh $SWAP_MB
 
 # Allow memory to be over committed. Helps in pyspark where we fork

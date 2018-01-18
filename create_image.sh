@@ -38,11 +38,11 @@ sudo sed -i 's/.*ephemeral.*//g' /etc/cloud/cloud.cfg
 sudo sed -i 's/.*swap.*//g' /etc/cloud/cloud.cfg
 
 echo "mounts:" >> /etc/cloud/cloud.cfg
-echo " - [ ephemeral0, /mnt, auto, \"defaults,noatime\", "\
+echo " - [ ephemeral0, /spark, auto, \"defaults,noatime\", "\
   "\"0\", \"0\" ]" >> /etc/cloud.cloud.cfg
 
 for x in {1..23}; do
-  echo " - [ ephemeral$x, /mnt$((x + 1)), auto, "\
+  echo " - [ ephemeral$x, /spark$((x + 1)), auto, "\
     "\"defaults,noatime\", \"0\", \"0\" ]" >> /etc/cloud/cloud.cfg
 done
 

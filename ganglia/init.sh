@@ -2,11 +2,11 @@
 
 # NOTE: Remove all rrds which might be around from an earlier run
 rm -rf /var/lib/ganglia/rrds/*
-rm -rf /mnt/ganglia/rrds/*
+rm -rf /spark/ganglia/rrds/*
 
 # Make sure rrd storage directory has right permissions
-mkdir -p /mnt/ganglia/rrds
-chown -R nobody:nobody /mnt/ganglia/rrds
+mkdir -p /spark/ganglia/rrds
+chown -R nobody:nobody /spark/ganglia/rrds
 
 # Install ganglia
 # TODO: Remove this once the AMI has ganglia by default
@@ -21,6 +21,6 @@ for node in $SLAVES $OTHER_MASTERS; do
 done
 wait
 
-# Post-package installation : Symlink /var/lib/ganglia/rrds to /mnt/ganglia/rrds
+# Post-package installation : Symlink /var/lib/ganglia/rrds to /spark/ganglia/rrds
 rmdir /var/lib/ganglia/rrds
-ln -s /mnt/ganglia/rrds /var/lib/ganglia/rrds
+ln -s /spark/ganglia/rrds /var/lib/ganglia/rrds

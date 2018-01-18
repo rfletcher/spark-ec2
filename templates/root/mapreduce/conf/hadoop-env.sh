@@ -38,7 +38,7 @@ export HADOOP_SSH_OPTS="-o StrictHostKeyChecking=no -o ConnectTimeout=5"
 
 # Where log files are stored.  $HADOOP_HOME/logs by default.
 # export HADOOP_LOG_DIR=${HADOOP_HOME}/logs
-export HADOOP_LOG_DIR=/mnt/mapreduce/logs
+export HADOOP_LOG_DIR=/spark/mapreduce/logs
 
 # File naming remote slave hosts.  $HADOOP_HOME/conf/slaves by default.
 # export HADOOP_SLAVES=${HADOOP_HOME}/conf/slaves
