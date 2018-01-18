@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pushd /spark > /dev/null
+pushd /root > /dev/null
 
 if [ -d "tachyon" ]; then
   echo "Tachyon seems to be installed. Exiting."

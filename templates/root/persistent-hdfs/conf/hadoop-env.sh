@@ -8,8 +8,8 @@
 # The java implementation to use.  Required.
 export JAVA_HOME={{java_home}}
 
-export HADOOP_HOME="/spark/persistent-hdfs"
-export HADOOP_MAPREDUCE_HOME="/spark/mapreduce"
+export HADOOP_HOME="/root/persistent-hdfs"
+export HADOOP_MAPREDUCE_HOME="/root/mapreduce"
 
 # Extra Java CLASSPATH elements.  Optional.
 # export HADOOP_CLASSPATH=

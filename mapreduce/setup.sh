@@ -1,5 +1,5 @@
 #!/bin/bash
-MAPREDUCE=/spark/mapreduce
+MAPREDUCE=/root/mapreduce
 
 mkdir -p /mnt/mapreduce/logs
 for node in $SLAVES $OTHER_MASTERS; do
@@ -8,4 +8,4 @@ done
 wait
 
 chown hadoop:hadoop /mnt/mapreduce -R
-/spark/spark-ec2/copy-dir $MAPREDUCE/conf
+/root/spark-ec2/copy-dir $MAPREDUCE/conf
