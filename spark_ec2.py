@@ -284,6 +284,9 @@ def parse_args():
         "-u", "--user", default="root",
         help="The SSH user you want to connect as (default: %default)")
     parser.add_option(
+        "-f", "--force", action="store_true", default=False,
+        help="Perform dangerous operations without confirmation (default: %default)")
+    parser.add_option(
         "--delete-groups", action="store_true", default=False,
         help="When destroying a cluster, delete the security groups that were created")
     parser.add_option(
@@ -1402,8 +1405,11 @@ def real_main():
                 print("> %s" % get_dns_name(inst, opts.private_ips))
             print("ALL DATA ON ALL NODES WILL BE LOST!!")
 
-        msg = "Are you sure you want to destroy the cluster {c}? (y/N) ".format(c=cluster_name)
-        response = raw_input(msg)
+        if opts.force:
+          response = "y"
+        else:
+          msg = "Are you sure you want to destroy the cluster {c}? (y/N) ".format(c=cluster_name)
+          response = raw_input(msg)
         if response == "y":
             print("Terminating master...")
             for inst in master_nodes:
