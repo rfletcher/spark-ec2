@@ -1,3 +1,3 @@
 #!/bin/bash
 
-/root/spark-ec2/copy-dir /root/scala
+/spark/spark-ec2/copy-dir /spark/scala

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-pushd /root > /dev/null
+pushd /spark > /dev/null
 
 if [ -d "scala" ]; then
   echo "Scala seems to be installed. Exiting."

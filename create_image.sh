@@ -61,18 +61,18 @@ echo "export PATH=\$PATH:\$M2_HOME/bin" >> ~/.bash_profile
 source ~/.bash_profile
 
 # Build Hadoop to install native libs
-sudo mkdir /root/hadoop-native
+sudo mkdir /spark/hadoop-native
 cd /tmp
 sudo yum install -y protobuf-compiler cmake openssl-devel
 wget "http://archive.apache.org/dist/hadoop/common/hadoop-2.4.1/hadoop-2.4.1-src.tar.gz"
 tar xvzf hadoop-2.4.1-src.tar.gz
 cd hadoop-2.4.1-src
 mvn package -Pdist,native -DskipTests -Dtar
-sudo mv hadoop-dist/target/hadoop-2.4.1/lib/native/* /root/hadoop-native
+sudo mv hadoop-dist/target/hadoop-2.4.1/lib/native/* /spark/hadoop-native
 
 # Install Snappy lib (for Hadoop)
 yum install -y snappy
-ln -sf /usr/lib64/libsnappy.so.1 /root/hadoop-native/.
+ln -sf /usr/lib64/libsnappy.so.1 /spark/hadoop-native/.
 
 # Create /usr/bin/realpath which is used by R to find Java installations
 # NOTE: /usr/bin/realpath is missing in CentOS AMIs. See

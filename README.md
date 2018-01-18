@@ -128,25 +128,25 @@ export AWS_ACCESS_KEY_ID=ABCDEFG1234567890123
     that is to load them from Amazon S3 or an Amazon EBS device into an
     instance of the Hadoop Distributed File System (HDFS) on your nodes.
     The `spark-ec2` script already sets up a HDFS instance for you. It's
-    installed in `/root/ephemeral-hdfs`, and can be accessed using the
+    installed in `/spark/ephemeral-hdfs`, and can be accessed using the
     `bin/hadoop` script in that directory. Note that the data in this
     HDFS goes away when you stop and restart a machine.
 -   There is also a *persistent HDFS* instance in
-    `/root/persistent-hdfs` that will keep data across cluster restarts.
+    `/spark/persistent-hdfs` that will keep data across cluster restarts.
     Typically each node has relatively little space of persistent data
     (about 3 GB), but you can use the `--ebs-vol-size` option to
     `spark-ec2` to attach a persistent EBS volume to each node for
     storing the persistent HDFS.
 -   Finally, if you get errors while running your application, look at the slave's logs
-    for that application inside of the scheduler work directory (/root/spark/work). You can
+    for that application inside of the scheduler work directory (/spark/spark/work). You can
     also view the status of the cluster using the web UI: `http://<master-hostname>:8080`.
 
 ## Configuration
 
-You can edit `/root/spark/conf/spark-env.sh` on each machine to set Spark configuration options, such
+You can edit `/spark/spark/conf/spark-env.sh` on each machine to set Spark configuration options, such
 as JVM options. This file needs to be copied to **every machine** to reflect the change. The easiest way to
 do this is to use a script we provide called `copy-dir`. First edit your `spark-env.sh` file on the master, 
-then run `~/spark-ec2/copy-dir /root/spark/conf` to RSYNC it to all the workers.
+then run `~/spark-ec2/copy-dir /spark/spark/conf` to RSYNC it to all the workers.
 
 The [configuration guide](configuration.html) describes the available configuration options.
 
@@ -201,7 +201,7 @@ please refer to http://spark-project.org/docs/latest/ec2-scripts.html
 
 The Spark cluster setup is guided by the values set in `ec2-variables.sh`.`setup.sh`
 first performs basic operations like enabling ssh across machines, mounting ephemeral
-drives and also creates files named `/root/spark-ec2/masters`, and `/root/spark-ec2/slaves`.
+drives and also creates files named `/spark/spark-ec2/masters`, and `/spark/spark-ec2/slaves`.
 Following that every module listed in `MODULES` is initialized. 
 
 To add a new module, you will need to do the following:
@@ -234,6 +234,6 @@ the set of variables that can be used in a template are:
 
 4. Add a file named `setup.sh` to launch any services on the master/slaves. This is called
 after the templates have been configured. You can use the environment variables `$SLAVES` to
-get a list of slave hostnames and `/root/spark-ec2/copy-dir` to sync a directory across machines.
+get a list of slave hostnames and `/spark/spark-ec2/copy-dir` to sync a directory across machines.
 
 5. Modify `spark_ec2.py` to add your module to the list of enabled modules.
