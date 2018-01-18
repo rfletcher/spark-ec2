@@ -11,7 +11,7 @@ rstudio-server restart
 adduser rstudio
 
 # create a Rscript that connects to Spark, to help starting user
-cp /root/spark-ec2/rstudio/startSpark.R /home/rstudio
+cp /spark-home/spark-ec2/rstudio/startSpark.R /home/rstudio
 
 # make sure that the temp dirs exist and can be written to by any user
 # otherwise this will create a conflict for the rstudio user

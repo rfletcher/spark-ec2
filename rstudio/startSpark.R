@@ -1,10 +1,10 @@
 print('Now connecting to Spark for you.') 
  
-spark_link <- system('cat /root/spark-ec2/cluster-url', intern=TRUE)
+spark_link <- system('cat /spark-home/spark-ec2/cluster-url', intern=TRUE)
 
-.libPaths(c(.libPaths(), '/root/spark/R/lib')) 
-Sys.setenv(SPARK_HOME = '/root/spark') 
-Sys.setenv(PATH = paste(Sys.getenv(c('PATH')), '/root/spark/bin', sep=':')) 
+.libPaths(c(.libPaths(), '/spark-home/spark/R/lib')) 
+Sys.setenv(SPARK_HOME = '/spark-home/spark') 
+Sys.setenv(PATH = paste(Sys.getenv(c('PATH')), '/spark-home/spark/bin', sep=':')) 
 library(SparkR) 
 
 sc <- sparkR.init(spark_link) 
