@@ -110,7 +110,7 @@ DEFAULT_SPARK_VERSION = SPARK_EC2_VERSION
 DEFAULT_SPARK_GITHUB_REPO = "https://github.com/apache/spark"
 
 # Default location to get the spark-ec2 scripts (and ami-list) from
-DEFAULT_SPARK_EC2_GITHUB_REPO = "https://github.com/amplab/spark-ec2"
+DEFAULT_SPARK_EC2_GITHUB_REPO = "https://github.com/rfletcher/spark-ec2"
 DEFAULT_SPARK_EC2_BRANCH = "branch-2.0"
 
 
@@ -324,7 +324,7 @@ def parse_args():
         "--vpc-id", default=None,
         help="VPC to launch instances in")
     parser.add_option(
-        "--private-ips", action="store_true", default=False,
+        "--private-ips", action="store_true", default=True,
         help="Use private IPs for instances rather than public if VPC/subnet " +
              "requires that.")
     parser.add_option(
