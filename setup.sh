@@ -56,7 +56,7 @@ echo "RSYNC'ing /spark/spark-ec2 to other cluster nodes..."
 rsync_start_time="$(date +'%s')"
 for node in $SLAVES $OTHER_MASTERS; do
   echo $node
-  rsync -e "ssh $SSH_OPTS" -az /spark/spark-ec2 $node:/spark &
+  rsync -e "ssh $SSH_OPTS" -akz /spark/spark-ec2 $node:/spark &
   scp $SSH_OPTS ~/.ssh/id_rsa $node:.ssh &
   sleep 0.1
 done
