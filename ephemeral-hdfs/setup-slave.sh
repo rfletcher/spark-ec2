@@ -21,9 +21,9 @@ sudo chown spark:spark /var/hadoop
 function create_hadoop_dirs {
   location=$1
   if [[ -e $location ]]; then
-    mkdir -p $location/ephemeral-hdfs $location/hadoop/tmp
+    sudo mkdir -p $location/ephemeral-hdfs $location/hadoop/tmp
     sudo chmod -R 755 $location/ephemeral-hdfs
-    mkdir -p $location/hadoop/mrlocal $location/hadoop/mrlocal2
+    sudo mkdir -p $location/hadoop/mrlocal $location/hadoop/mrlocal2
   fi
 }
 
