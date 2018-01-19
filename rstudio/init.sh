@@ -3,7 +3,7 @@
 set -e
 set -x
 
-if ! sudo service rstudio-server status; then
+if ! sudo SYSTEMD_PAGER=cat service rstudio-server status; then
   # download rstudio 
   DEBIAN_FRONTEND=noninteractive sudo apt-get install \
     --assume-yes --allow-downgrades --allow-remove-essential --allow-change-held-packages \
