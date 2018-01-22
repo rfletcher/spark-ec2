@@ -40,9 +40,4 @@
     <value>3000</value>
   </property>
 
-  <property>
-    <name>fs.tachyon.impl</name>
-    <value>tachyon.hadoop.TFS</value>
-  </property>
-
 </configuration>
