@@ -40,7 +40,7 @@ if [[ $instance_type == r3* || $instance_type == m3* || $instance_type == i2* ||
   mkdir /spark-work
   # To turn TRIM support on, uncomment the following line.
   #echo '/dev/xvdb /spark-work  ext4  defaults,noatime,discard 0 0' >> /etc/fstab
-  mkfs.ext4 -E lazy_itable_init=0,lazy_journal_init=0 /dev/xvdb
+  mkfs.ext4 -FE lazy_itable_init=0,lazy_journal_init=0 /dev/xvdb
   mount -o $EXT4_MOUNT_OPTS /dev/xvdb /spark-work
 
   if [[ $instance_type == "r3.8xlarge" || $instance_type == "hi1.4xlarge" ]]; then
@@ -48,13 +48,13 @@ if [[ $instance_type == r3* || $instance_type == m3* || $instance_type == i2* ||
     # To turn TRIM support on, uncomment the following line.
     #echo '/dev/xvdc /spark-work2  ext4  defaults,noatime,discard 0 0' >> /etc/fstab
     if [[ $instance_type == "r3.8xlarge" ]]; then
-      mkfs.ext4 -E lazy_itable_init=0,lazy_journal_init=0 /dev/xvdc
+      mkfs.ext4 -FE lazy_itable_init=0,lazy_journal_init=0 /dev/xvdc
       mount -o $EXT4_MOUNT_OPTS /dev/xvdc /spark-work2
     fi
     # To turn TRIM support on, uncomment the following line.
     #echo '/dev/xvdf /spark-work2  ext4  defaults,noatime,discard 0 0' >> /etc/fstab
     if [[ $instance_type == "hi1.4xlarge" ]]; then
-      mkfs.ext4 -E lazy_itable_init=0,lazy_journal_init=0 /dev/xvdf
+      mkfs.ext4 -FE lazy_itable_init=0,lazy_journal_init=0 /dev/xvdf
       mount -o $EXT4_MOUNT_OPTS /dev/xvdf /spark-work2
     fi    
   fi
