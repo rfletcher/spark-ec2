@@ -428,37 +428,15 @@ EC2_INSTANCE_TYPES = {
     "t2.large":    "hvm",
 }
 
-
-# Attempt to resolve an appropriate AMI given the architecture and region of the request.
-def get_spark_ami(opts):
-    if opts.instance_type in EC2_INSTANCE_TYPES:
-        instance_type = EC2_INSTANCE_TYPES[opts.instance_type]
-    else:
-        instance_type = "pvm"
-        print("Don't recognize %s, assuming type is pvm" % opts.instance_type, file=stderr)
-
-    # URL prefix from which to fetch AMI information
-    ami_prefix = "{r}/{b}/ami-list".format(
-        r=opts.spark_ec2_git_repo.replace("https://github.com", "https://raw.github.com", 1),
-        b=opts.spark_ec2_git_branch)
-
-    ami_path = "%s/%s/%s" % (ami_prefix, opts.region, instance_type)
-    reader = codecs.getreader("ascii")
-    try:
-        ami = reader(urlopen(ami_path)).read().strip()
-    except:
-        print("Could not resolve AMI at: " + ami_path, file=stderr)
-        sys.exit(1)
-
-    print("Spark AMI: " + ami)
-    return ami
-
-
 # Launch a cluster of the given name, by setting up its security groups,
 # and then starting new instances in them.
 # Returns a tuple of EC2 reservation objects for the master and slaves
 # Fails if there already instances running in the cluster's groups.
 def launch_cluster(conn, opts, cluster_name):
+    if opts.ami is None:
+        print("ERROR: Must provide an AMI (-a).", file=stderr)
+        sys.exit(1)
+
     if opts.identity_file is None:
         print("ERROR: Must provide an identity file (-i) for ssh connections.", file=stderr)
         sys.exit(1)
@@ -541,10 +519,6 @@ def launch_cluster(conn, opts, cluster_name):
         print("ERROR: There are already instances running in group %s or %s" %
               (master_group.name, slave_group.name), file=stderr)
         sys.exit(1)
-
-    # Figure out Spark AMI
-    if opts.ami is None:
-        opts.ami = get_spark_ami(opts)
 
     # we use group ids to work around https://github.com/boto/boto/issues/350
     additional_group_ids = []
