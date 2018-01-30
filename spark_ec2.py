@@ -548,10 +548,9 @@ def launch_cluster(conn, opts, cluster_name):
 
     # we use group ids to work around https://github.com/boto/boto/issues/350
     additional_group_ids = []
-    if opts.additional_security_group:
-        additional_group_ids = [sg.id
-                                for sg in conn.get_all_security_groups()
-                                if opts.additional_security_group in (sg.name, sg.id)]
+    if opts.additional_security_group.strip():
+        additional_group_ids = opts.additional_security_group.split(',')
+
     print("Launching instances...")
 
     try:
