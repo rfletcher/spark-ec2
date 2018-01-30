@@ -11,13 +11,12 @@ if [ -d "spark" ]; then
 fi
 
 # Github tag:
-if [[ "$SPARK_VERSION" == *\|* ]]
-then
+if [[ "$SPARK_VERSION" == *\|* ]]; then
   mkdir spark
   pushd spark > /dev/null
   git init
-  repo=`python -c "print '$SPARK_VERSION'.split('|')[0]"` 
-  git_hash=`python -c "print '$SPARK_VERSION'.split('|')[1]"`
+  repo=$(python -c "print '$SPARK_VERSION'.split('|')[0]")
+  git_hash=$(python -c "print '$SPARK_VERSION'.split('|')[1]")
   git remote add origin $repo
   git fetch origin
   git checkout $git_hash
@@ -40,7 +39,7 @@ else
   echo "Unpacking Spark"
   tar xvzf spark-*.tgz > /tmp/spark-ec2_spark.log
   rm spark-*.tgz
-  mv `ls -d spark-* | grep -v ec2` spark
+  mv $(ls -d spark-* | grep -v ec2) spark
 fi
 
 popd > /dev/null
