@@ -33,9 +33,6 @@ echo "Starting ephemeral HDFS..."
 
 # This is different depending on version.
 case "$HADOOP_MAJOR_VERSION" in
-  1)
-    sudo $EPHEMERAL_HDFS/bin/start-dfs.sh
-    ;;
   2)
     sudo $EPHEMERAL_HDFS/sbin/start-dfs.sh
     ;;

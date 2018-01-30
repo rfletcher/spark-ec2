@@ -225,7 +225,7 @@ def parse_args():
              "(default: %default).")
     parser.add_option(
         "--hadoop-major-version", default="yarn",
-        help="Major version of Hadoop. Valid options are 1 (Hadoop 1.0.4), 2 (CDH 4.2.0), yarn " +
+        help="Major version of Hadoop. Valid options are 2 (CDH 4.2.0), yarn " +
              "(Hadoop 2.4.0) (default: %default)")
     parser.add_option(
         "-D", metavar="[ADDRESS:]PORT", dest="proxy_port",
@@ -815,9 +815,6 @@ def setup_cluster(conn, master_nodes, slave_nodes, opts, deploy_ssh_key):
 
     modules = ['spark', 'ephemeral-hdfs', 'persistent-hdfs',
                'mapreduce', 'spark-standalone']
-
-    if opts.hadoop_major_version == "1":
-        modules = list(filter(lambda x: x != "mapreduce", modules))
 
     # Clear SPARK_WORKER_INSTANCES if running on YARN
     if opts.hadoop_major_version == "yarn":

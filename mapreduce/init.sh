@@ -5,9 +5,6 @@ set -x
 
 pushd /spark-home > /dev/null
 case "$HADOOP_MAJOR_VERSION" in
-  1)
-    echo "Nothing to initialize for MapReduce in Hadoop 1"
-    ;;
   2) 
     wget http://s3.amazonaws.com/spark-related-packages/mr1-2.0.0-mr1-cdh4.2.0.tar.gz 
     tar -xvzf mr1-*.tar.gz > /tmp/spark-ec2_mapreduce.log
