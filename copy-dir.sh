@@ -47,6 +47,6 @@ SSH_OPTS="-o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o Connect
 echo "RSYNC'ing $DIR to slaves..."
 for slave in $SLAVES; do
     echo $slave
-    rsync -e "ssh $SSH_OPTS" -aKz $DELETE_FLAG "$DIR" "$slave:$DEST" & sleep 0.5
+    rsync -e "ssh $SSH_OPTS" -aKklz $DELETE_FLAG "$DIR" "$slave:$DEST" & sleep 0.5
 done
 wait

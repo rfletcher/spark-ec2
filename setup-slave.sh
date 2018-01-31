@@ -13,7 +13,6 @@ fi
 # Make sure we are in the spark-ec2 directory
 pushd /spark-home/spark-ec2 > /dev/null
 
-source setup-common.sh
 source /spark-home/.bash_profile
 source ec2-variables.sh
 
@@ -73,9 +72,6 @@ function setup_ebs_volume {
     # Check if device is already formatted
     if ! blkid $device; then
       mkdir $mount_point
-      DEBIAN_FRONTEND=noninteractive sudo apt-get install \
-        --assume-yes --allow-downgrades --allow-remove-essential --allow-change-held-packages \
-        xfsprogs
       if mkfs.xfs -q $device; then
         mount -o $XFS_MOUNT_OPTS $device $mount_point
         chmod -R a+w $mount_point

@@ -3,9 +3,7 @@
 set -e
 set -x
 
-sudo DEBIAN_FRONTEND=noninteractive apt-get install \
-  --assume-yes --allow-downgrades --allow-remove-essential --allow-change-held-packages \
-  pssh
+## master setup
 
 # usage: echo_time_diff name start_time end_time
 echo_time_diff () {
@@ -18,7 +16,6 @@ echo_time_diff () {
 # Make sure we are in the spark-ec2 directory
 pushd /spark-home/spark-ec2 > /dev/null
 
-source setup-common.sh
 # Load the environment variables specific to this AMI
 source /spark-home/.bash_profile
 
@@ -58,12 +55,11 @@ fi
 echo "Setting executable permissions on scripts..."
 find . -regex "^.+.\(sh\|py\)" | xargs chmod a+x
 
-echo "RSYNC'ing /spark-home/spark-ec2 to other cluster nodes..."
+echo "Syncing /spark-home/spark-ec2 to other cluster nodes..."
 rsync_start_time="$(date +'%s')"
 for node in $SLAVES $OTHER_MASTERS; do
   echo $node
-  rsync -e "ssh $SSH_OPTS" -aKz /spark-home/spark-ec2 $node:/spark-home &
-  # scp $SSH_OPTS ~/.ssh/id_rsa $node:.ssh &
+  rsync -e "ssh $SSH_OPTS" -aKz /spark-home/spark-ec2/ $node:/spark-home/spark-ec2/ &
   sleep 0.1
 done
 wait
@@ -80,12 +76,6 @@ parallel-ssh --inline \
     "sudo spark-ec2/setup-slave.sh"
 setup_slave_end_time="$(date +'%s')"
 echo_time_diff "setup-slave" "$setup_slave_start_time" "$setup_slave_end_time"
-
-# Always include 'scala' module if it's not defined as a work around
-# for older versions of the scripts.
-if [[ ! $MODULES =~ *scala* ]]; then
-  MODULES=$(printf "%s\n%s\n" "scala" $MODULES)
-fi
 
 # Install / Init module
 for module in $MODULES; do

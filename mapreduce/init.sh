@@ -3,21 +3,16 @@
 set -e
 set -x
 
-pushd /spark-home > /dev/null
-case "$HADOOP_MAJOR_VERSION" in
-  2) 
-    wget http://s3.amazonaws.com/spark-related-packages/mr1-2.0.0-mr1-cdh4.2.0.tar.gz 
-    tar -xvzf mr1-*.tar.gz > /tmp/spark-ec2_mapreduce.log
-    rm mr1-*.tar.gz
-    mv hadoop-2.0.0-mr1-cdh4.2.0/ mapreduce/
-    /spark-home/spark-ec2/copy-dir /spark-home/mapreduce
-    ;;
-  yarn)
-    echo "Nothing to initialize for MapReduce in Hadoop 2 YARN"
-    ;;
+pushd /spark-home/spark-ec2/mapreduce > /dev/null
 
-  *)
-     echo "ERROR: Unknown Hadoop version"
-     return -1
-esac
-popd > /dev/null
+# point mapreduce/ to the right version locally...
+source set-version.sh
+
+# ...and on other instances
+for node in $SLAVES $OTHER_MASTERS; do
+  ssh -t $SSH_OPTS $node "/spark-home/spark-ec2/mapreduce/set-version.sh $HADOOP_MAJOR_VERSION" & sleep 0.3
+done
+wait
+
+popd >/dev/null
+

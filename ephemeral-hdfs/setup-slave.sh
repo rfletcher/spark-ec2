@@ -3,6 +3,8 @@
 set -e
 set -x
 
+# TODO move more of this to puppet?
+
 sudo adduser --disabled-login --gecos "" hadoop || true
 
 # Setup ephemeral-hdfs

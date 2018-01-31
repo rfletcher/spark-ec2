@@ -18,7 +18,7 @@ for node in $SLAVES $OTHER_MASTERS; do
 done
 wait
 
-/spark-home/spark-ec2/copy-dir $EPHEMERAL_HDFS/conf
+/spark-home/spark-ec2/copy-dir --delete $EPHEMERAL_HDFS/conf
 
 NAMENODE_DIR=/spark-work/ephemeral-hdfs/dfs/name
 

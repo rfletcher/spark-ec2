@@ -13,7 +13,7 @@ for node in $SLAVES $OTHER_MASTERS; do
 done
 wait
 
-/spark-home/spark-ec2/copy-dir $PERSISTENT_HDFS/conf
+/spark-home/spark-ec2/copy-dir --delete $PERSISTENT_HDFS/conf
 
 if [[ ! -e /vol/persistent-hdfs/dfs/name ]] ; then
   echo "Formatting persistent HDFS namenode..."
