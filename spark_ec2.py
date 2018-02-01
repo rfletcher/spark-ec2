@@ -609,13 +609,13 @@ def launch_cluster(conn, opts, cluster_name):
     print('Applying tags to master nodes')
     for master in master_nodes:
         master.add_tags(
-            dict(additional_tags, Name='{cn}-master-{iid}'.format(cn=cluster_name, iid=master.id))
+            dict(additional_tags, Name='spark-{cn}-master'.format(cn=cluster_name))
         )
 
     print('Applying tags to slave nodes')
     for slave in slave_nodes:
         slave.add_tags(
-            dict(additional_tags, Name='{cn}-slave-{iid}'.format(cn=cluster_name, iid=slave.id))
+            dict(additional_tags, Name='spark-{cn}-slave'.format(cn=cluster_name))
         )
 
     if opts.tag_volumes:
