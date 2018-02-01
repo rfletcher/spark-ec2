@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-set -x
+# set-x
 
 # Starting new instance in VPC often results that `hostname` returns something like 'ip-10-1-1-24', which is
 # not resolvable. Which leads to problems like SparkUI failing to bind itself on start up to that hostname as

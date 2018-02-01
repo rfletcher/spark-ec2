@@ -4,7 +4,7 @@
 # This has only been tested with Amazon Linux AMI 2014.03.2 
 
 set -e
-set -x
+# set-x
 
 if [ "$(id -u)" != "0" ]; then
    echo "This script must be run as root" 1>&2

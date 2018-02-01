@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-set -x
+# set-x
 
 # TODO move more of this to puppet?
 

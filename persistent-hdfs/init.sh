@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-set -x
+# set-x
 
 pushd /spark-home/spark-ec2/persistent-hdfs > /dev/null
 

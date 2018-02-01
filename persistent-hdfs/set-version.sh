@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-set -x
+# set-x
 
 if [[ "$HADOOP_MAJOR_VERSION" == "" ]]; then
   HADOOP_MAJOR_VERSION="$1"

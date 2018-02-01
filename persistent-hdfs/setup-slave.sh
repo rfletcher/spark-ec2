@@ -1,7 +1,7 @@
 #!/bin/bash
 
 set -e
-set -x
+# set-x
 
 # Setup persistent-hdfs
 mkdir -p /spark-work/persistent-hdfs/logs
