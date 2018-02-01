@@ -450,76 +450,6 @@ def launch_cluster(conn, opts, cluster_name):
         with open(opts.user_data) as user_data_file:
             user_data_content = user_data_file.read()
 
-    print("Setting up security groups...")
-    master_group = get_or_make_group(conn, cluster_name + "-master", opts.vpc_id)
-    slave_group = get_or_make_group(conn, cluster_name + "-slaves", opts.vpc_id)
-    authorized_address = opts.authorized_address
-    if master_group.rules == []:  # Group was just now created
-        if opts.vpc_id is None:
-            master_group.authorize(src_group=master_group)
-            master_group.authorize(src_group=slave_group)
-        else:
-            master_group.authorize(ip_protocol='icmp', from_port=-1, to_port=-1,
-                                   src_group=master_group)
-            master_group.authorize(ip_protocol='tcp', from_port=0, to_port=65535,
-                                   src_group=master_group)
-            master_group.authorize(ip_protocol='udp', from_port=0, to_port=65535,
-                                   src_group=master_group)
-            master_group.authorize(ip_protocol='icmp', from_port=-1, to_port=-1,
-                                   src_group=slave_group)
-            master_group.authorize(ip_protocol='tcp', from_port=0, to_port=65535,
-                                   src_group=slave_group)
-            master_group.authorize(ip_protocol='udp', from_port=0, to_port=65535,
-                                   src_group=slave_group)
-        master_group.authorize('tcp', 22, 22, authorized_address)
-        master_group.authorize('tcp', 8080, 8081, authorized_address)
-        master_group.authorize('tcp', 18080, 18080, authorized_address)
-        master_group.authorize('tcp', 19999, 19999, authorized_address)
-        master_group.authorize('tcp', 50030, 50030, authorized_address)
-        master_group.authorize('tcp', 50070, 50070, authorized_address)
-        master_group.authorize('tcp', 60070, 60070, authorized_address)
-        master_group.authorize('tcp', 4040, 4045, authorized_address)
-        # HDFS NFS gateway requires 111,2049,4242 for tcp & udp
-        master_group.authorize('tcp', 111, 111, authorized_address)
-        master_group.authorize('udp', 111, 111, authorized_address)
-        master_group.authorize('tcp', 2049, 2049, authorized_address)
-        master_group.authorize('udp', 2049, 2049, authorized_address)
-        master_group.authorize('tcp', 4242, 4242, authorized_address)
-        master_group.authorize('udp', 4242, 4242, authorized_address)
-        # RM in YARN mode uses 8088
-        master_group.authorize('tcp', 8088, 8088, authorized_address)
-    if slave_group.rules == []:  # Group was just now created
-        if opts.vpc_id is None:
-            slave_group.authorize(src_group=master_group)
-            slave_group.authorize(src_group=slave_group)
-        else:
-            slave_group.authorize(ip_protocol='icmp', from_port=-1, to_port=-1,
-                                  src_group=master_group)
-            slave_group.authorize(ip_protocol='tcp', from_port=0, to_port=65535,
-                                  src_group=master_group)
-            slave_group.authorize(ip_protocol='udp', from_port=0, to_port=65535,
-                                  src_group=master_group)
-            slave_group.authorize(ip_protocol='icmp', from_port=-1, to_port=-1,
-                                  src_group=slave_group)
-            slave_group.authorize(ip_protocol='tcp', from_port=0, to_port=65535,
-                                  src_group=slave_group)
-            slave_group.authorize(ip_protocol='udp', from_port=0, to_port=65535,
-                                  src_group=slave_group)
-        slave_group.authorize('tcp', 22, 22, authorized_address)
-        slave_group.authorize('tcp', 8080, 8081, authorized_address)
-        slave_group.authorize('tcp', 50060, 50060, authorized_address)
-        slave_group.authorize('tcp', 50075, 50075, authorized_address)
-        slave_group.authorize('tcp', 60060, 60060, authorized_address)
-        slave_group.authorize('tcp', 60075, 60075, authorized_address)
-
-    # Check if instances are already running in our groups
-    existing_masters, existing_slaves = get_existing_cluster(conn, opts, cluster_name,
-                                                             die_on_error=False)
-    if existing_slaves or (existing_masters and not opts.use_existing_master):
-        print("ERROR: There are already instances running in group %s or %s" %
-              (master_group.name, slave_group.name), file=stderr)
-        sys.exit(1)
-
     # we use group ids to work around https://github.com/boto/boto/issues/350
     additional_group_ids = []
     if opts.additional_security_group.strip():
@@ -571,7 +501,7 @@ def launch_cluster(conn, opts, cluster_name):
                 placement=zone,
                 count=num_slaves_this_zone,
                 key_name=opts.key_pair,
-                security_group_ids=[slave_group.id] + additional_group_ids,
+                security_group_ids=additional_group_ids,
                 instance_type=opts.instance_type,
                 block_device_map=block_map,
                 subnet_id=opts.subnet_id,
@@ -643,35 +573,27 @@ def launch_cluster(conn, opts, cluster_name):
                       r=slave_res.id))
             i += 1
 
-    # Launch or resume masters
-    if existing_masters:
-        print("Starting master...")
-        for inst in existing_masters:
-            if inst.state not in ["shutting-down", "terminated"]:
-                inst.start()
-        master_nodes = existing_masters
-    else:
-        master_type = opts.master_instance_type
-        if master_type == "":
-            master_type = opts.instance_type
-        if opts.zone == 'all':
-            opts.zone = random.choice(conn.get_all_zones()).name
-        master_res = image.run(
-            key_name=opts.key_pair,
-            security_group_ids=[master_group.id] + additional_group_ids,
-            instance_type=master_type,
-            placement=opts.zone,
-            min_count=1,
-            max_count=1,
-            block_device_map=block_map,
-            subnet_id=opts.subnet_id,
-            placement_group=opts.placement_group,
-            user_data=user_data_content,
-            instance_initiated_shutdown_behavior=opts.instance_initiated_shutdown_behavior,
-            instance_profile_name=opts.instance_profile_name)
+    master_type = opts.master_instance_type
+    if master_type == "":
+        master_type = opts.instance_type
+    if opts.zone == 'all':
+        opts.zone = random.choice(conn.get_all_zones()).name
+    master_res = image.run(
+        key_name=opts.key_pair,
+        security_group_ids=additional_group_ids,
+        instance_type=master_type,
+        placement=opts.zone,
+        min_count=1,
+        max_count=1,
+        block_device_map=block_map,
+        subnet_id=opts.subnet_id,
+        placement_group=opts.placement_group,
+        user_data=user_data_content,
+        instance_initiated_shutdown_behavior=opts.instance_initiated_shutdown_behavior,
+        instance_profile_name=opts.instance_profile_name)
 
-        master_nodes = master_res.instances
-        print("Launched master in %s, regid = %s" % (zone, master_res.id))
+    master_nodes = master_res.instances
+    print("Launched master in %s, regid = %s" % (zone, master_res.id))
 
     # This wait time corresponds to SPARK-4983
     print("Waiting for AWS to propagate instance metadata...")
