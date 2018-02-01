@@ -648,12 +648,12 @@ def get_existing_cluster(conn, opts, cluster_name, die_on_error=True):
             http://docs.aws.amazon.com/cli/latest/reference/ec2/describe-instances.html#options
         """
         reservations = conn.get_all_reservations(
-            filters={"instance.group-name": group_names})
+            filters={"tag:Name": group_names})
         instances = itertools.chain.from_iterable(r.instances for r in reservations)
         return [i for i in instances if i.state not in ["shutting-down", "terminated"]]
 
-    master_instances = get_instances([cluster_name + "-master"])
-    slave_instances = get_instances([cluster_name + "-slaves"])
+    master_instances = get_instances(["spark-" + cluster_name + "-master"])
+    slave_instances = get_instances(["spark-" + cluster_name + "-slave"])
 
     if any((master_instances, slave_instances)):
         print("Found {m} master{plural_m}, {s} slave{plural_s}.".format(
