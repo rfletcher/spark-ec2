@@ -9,9 +9,11 @@ pushd /spark-home/spark-ec2/persistent-hdfs > /dev/null
 source set-version.sh
 
 # ...and on other instances
-for node in $SLAVES $OTHER_MASTERS; do
-  ssh -t $SSH_OPTS $node "/spark-home/spark-ec2/persistent-hdfs/set-version.sh $HADOOP_MAJOR_VERSION" & sleep 0.3
-done
-wait
+parallel-ssh --inline \
+  --hosts "/spark-home/spark-ec2/slaves" \
+  --user spark \
+  --extra-args "-t -t $SSH_OPTS" \
+  --timeout 0 \
+  "/spark-home/spark-ec2/persistent-hdfs/set-version.sh $HADOOP_MAJOR_VERSION"
 
 popd >/dev/null
