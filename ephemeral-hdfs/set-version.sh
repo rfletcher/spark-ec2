@@ -11,7 +11,7 @@ pushd /spark-home > /dev/null
 
 case "$HADOOP_MAJOR_VERSION" in
   2)    HADOOP_VERSION="2.0.0";;
-  yarn) HADOOP_VERSION="2.4.0";;
+  yarn) HADOOP_VERSION="2.7.3";;
   *)    echo "ERROR: Unknown Hadoop version"; return 1;;
 esac
 
