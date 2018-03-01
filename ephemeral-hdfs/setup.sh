@@ -26,7 +26,7 @@ if [ -f "$NAMENODE_DIR/current/VERSION" ] && [ -f "$NAMENODE_DIR/current/fsimage
   echo "Hadoop namenode appears to be formatted: skipping"
 else
   echo "Formatting ephemeral HDFS namenode..."
-  sudo $EPHEMERAL_HDFS/bin/hadoop namenode -format -force
+  $EPHEMERAL_HDFS/bin/hadoop namenode -format -force
 fi
 
 echo "Starting ephemeral HDFS..."
@@ -34,12 +34,12 @@ echo "Starting ephemeral HDFS..."
 # This is different depending on version.
 case "$HADOOP_MAJOR_VERSION" in
   2)
-    sudo $EPHEMERAL_HDFS/sbin/start-dfs.sh
+    $EPHEMERAL_HDFS/sbin/start-dfs.sh
     ;;
   yarn) 
-    sudo $EPHEMERAL_HDFS/sbin/start-dfs.sh
+    $EPHEMERAL_HDFS/sbin/start-dfs.sh
     echo "Starting YARN"
-    sudo $EPHEMERAL_HDFS/sbin/start-yarn.sh
+    $EPHEMERAL_HDFS/sbin/start-yarn.sh
     ;;
   *)
      echo "ERROR: Unknown Hadoop version"
