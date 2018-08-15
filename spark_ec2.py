@@ -235,9 +235,6 @@ def parse_args():
              "instances into. Assumes placement group is already " +
              "created.")
     parser.add_option(
-        "--swap", metavar="SWAP", type="int", default=1024,
-        help="Swap space to set up per node, in MB (default: %default)")
-    parser.add_option(
         "--spot-price", metavar="PRICE", type="float",
         help="If specified, launch slaves as spot instances with the given " +
              "maximum price (in dollars)")
@@ -949,7 +946,6 @@ def deploy_files(conn, root_dir, opts, master_nodes, slave_nodes, modules):
         "hdfs_data_dirs": hdfs_data_dirs,
         "mapred_local_dirs": mapred_local_dirs,
         "spark_local_dirs": spark_local_dirs,
-        "swap": str(opts.swap),
         "modules": '\n'.join(modules),
         "spark_version": spark_v,
         "hadoop_major_version": opts.hadoop_major_version,

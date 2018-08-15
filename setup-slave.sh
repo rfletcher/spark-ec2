@@ -116,11 +116,6 @@ chmod -R a+w /spark-work*
 # clusters (new machines tend to come up under old hostnames)
 rm -f /spark-home/.ssh/known_hosts
 
-# Create swap space on /spark
-if ! [[ -e /spark-work/swap ]]; then
-  /spark-home/spark-ec2/create-swap.sh $SWAP_MB
-fi
-
 # Allow memory to be over committed. Helps in pyspark where we fork
 echo 1 > /proc/sys/vm/overcommit_memory
 
