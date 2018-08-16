@@ -147,6 +147,9 @@ def parse_args():
         + "<action> can be: launch, destroy, login, stop, start, get-master, reboot-slaves")
 
     parser.add_option(
+        "-d", "--root-disk-size", type="int", default=0,
+        help="Size of the root disk for each node, in GB. (default: use AMI-specified size)")
+    parser.add_option(
         "-s", "--slaves", type="int", default=1,
         help="Number of slaves to launch (default: %default)")
     parser.add_option(
@@ -463,6 +466,14 @@ def launch_cluster(conn, opts, cluster_name):
     # Create block device mapping so that we can add EBS volumes if asked to.
     # The first drive is attached as /dev/sds, 2nd as /dev/sdt, ... /dev/sdz
     block_map = BlockDeviceMapping()
+
+    if opts.root_disk_size > 0:
+        device = EBSBlockDeviceType()
+        device.size = opts.root_disk_size
+        device.volume_type = opts.ebs_vol_type
+        device.delete_on_termination = True
+        block_map["/dev/sda1"] = device
+
     if opts.ebs_vol_size > 0:
         for i in range(opts.ebs_vol_num):
             device = EBSBlockDeviceType()
