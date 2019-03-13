@@ -18,7 +18,7 @@ export HADOOP_YARN_USER=${HADOOP_YARN_USER:-yarn}
 
 # resolve links - $0 may be a softlink
 #export YARN_CONF_DIR="${YARN_CONF_DIR:-$HADOOP_YARN_HOME/conf}"
-export YARN_CONF_DIR="/spark-home/ephemeral-hdfs/conf"
+export YARN_CONF_DIR="/spark-home/hdfs/conf"
 
 # some Java parameters
 # export JAVA_HOME=/home/y/libexec/jdk1.6.0/
@@ -95,7 +95,7 @@ IFS=
 #if [ "$YARN_LOG_DIR" = "" ]; then
 #  YARN_LOG_DIR="$HADOOP_YARN_HOME/logs"
 #fi
-export YARN_LOG_DIR=/spark-work/ephemeral-hdfs/logs
+export YARN_LOG_DIR=/spark-work/hdfs/logs
 
 if [ "$YARN_LOGFILE" = "" ]; then
   YARN_LOGFILE='yarn.log'

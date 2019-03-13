@@ -20,6 +20,6 @@ if [[ ! -d "hadoop-${HADOOP_VERSION}" ]]; then
   return -1
 fi
 
-ln -fs "hadoop-${HADOOP_VERSION}" ephemeral-hdfs
+ln -fs "hadoop-${HADOOP_VERSION}" hdfs
 
 popd > /dev/null

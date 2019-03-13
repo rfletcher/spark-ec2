@@ -128,15 +128,9 @@ export AWS_ACCESS_KEY_ID=ABCDEFG1234567890123
     that is to load them from Amazon S3 or an Amazon EBS device into an
     instance of the Hadoop Distributed File System (HDFS) on your nodes.
     The `spark-ec2` script already sets up a HDFS instance for you. It's
-    installed in `/spark-home/ephemeral-hdfs`, and can be accessed using the
+    installed in `/spark-home/hdfs`, and can be accessed using the
     `bin/hadoop` script in that directory. Note that the data in this
     HDFS goes away when you stop and restart a machine.
--   There is also a *persistent HDFS* instance in
-    `/spark-home/persistent-hdfs` that will keep data across cluster restarts.
-    Typically each node has relatively little space of persistent data
-    (about 3 GB), but you can use the `--ebs-vol-size` option to
-    `spark-ec2` to attach a persistent EBS volume to each node for
-    storing the persistent HDFS.
 -   Finally, if you get errors while running your application, look at the slave's logs
     for that application inside of the scheduler work directory (/spark-home/spark/work). You can
     also view the status of the cluster using the web UI: `http://<master-hostname>:8080`.
@@ -161,12 +155,10 @@ before stopping them.***
 
 ## Pausing and Restarting Clusters
 
-The `spark-ec2` script also supports pausing a cluster. In this case,
-the VMs are stopped but not terminated, so they
-***lose all data on ephemeral disks*** but keep the data in their
-root partitions and their `persistent-hdfs`. Stopped machines will not
-cost you any EC2 cycles, but ***will*** continue to cost money for EBS
-storage.
+The `spark-ec2` script also supports pausing a cluster. In this case, the VMs
+are stopped but not terminated, so they ***lose all data on ephemeral disks***
+but keep the data in their root partitions. Stopped machines will not cost you
+any EC2 cycles, but ***will*** continue to cost money for EBS storage.
 
 - To stop one of your clusters, go into the `ec2` directory and run
 `./spark-ec2 --region=<ec2-region> stop <cluster-name>`.

@@ -697,8 +697,7 @@ def setup_cluster(conn, master_nodes, slave_nodes, opts, deploy_ssh_key):
             print(slave_address)
             ssh_write(slave_address, opts, ['tar', 'x'], dot_ssh_tar)
 
-    modules = ['spark', 'ephemeral-hdfs', 'persistent-hdfs',
-               'mapreduce', 'spark-standalone']
+    modules = ['spark', 'hdfs', 'mapreduce', 'spark-standalone']
 
     # Clear SPARK_WORKER_INSTANCES if running on YARN
     if opts.hadoop_major_version == "yarn":
@@ -927,12 +926,12 @@ def deploy_files(conn, root_dir, opts, master_nodes, slave_nodes, modules):
     active_master = get_dns_name(master_nodes[0], opts.private_ips)
 
     num_disks = get_num_disks(opts.instance_type)
-    hdfs_data_dirs = "/spark-work/ephemeral-hdfs/data"
+    hdfs_data_dirs = "/spark-work/hdfs/data"
     mapred_local_dirs = "/spark-work/hadoop/mrlocal"
     spark_local_dirs = "/spark-work/spark"
     if num_disks > 1:
         for i in range(2, num_disks + 1):
-            hdfs_data_dirs += ",/spark-work%d/ephemeral-hdfs/data" % i
+            hdfs_data_dirs += ",/spark-work%d/hdfs/data" % i
             mapred_local_dirs += ",/spark-work%d/hadoop/mrlocal" % i
             spark_local_dirs += ",/spark-work%d/spark" % i
 

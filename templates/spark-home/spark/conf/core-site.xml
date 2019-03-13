@@ -7,7 +7,7 @@
 
   <property>
     <name>hadoop.tmp.dir</name>
-    <value>/spark-work/ephemeral-hdfs</value>
+    <value>/spark-work/hdfs</value>
   </property>
 
   <property>

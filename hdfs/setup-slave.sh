@@ -17,7 +17,7 @@ function create_work_dirs {
 
   if [[ -e $location ]]; then
     for DIR in \
-      ephemeral-hdfs/{logs,} \
+      hdfs/{logs,} \
       hadoop/{logs,mrlocal,mrlocal2,tmp,} \
       yarn/{local,logs,}
     do

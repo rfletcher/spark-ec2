@@ -3,9 +3,9 @@
 set -e
 # set-x
 
-pushd /spark-home/spark-ec2/persistent-hdfs > /dev/null
+pushd /spark-home/spark-ec2/hdfs > /dev/null
 
-# point ephemeral-hdfs/ to the right version locally...
+# point hdfs/ to the right version locally...
 source set-version.sh
 
 # ...and on other instances
@@ -14,6 +14,6 @@ parallel-ssh --inline \
   --user spark \
   --extra-args "-t -t $SSH_OPTS" \
   --timeout 0 \
-  "/spark-home/spark-ec2/persistent-hdfs/set-version.sh $HADOOP_MAJOR_VERSION"
+  "/spark-home/spark-ec2/hdfs/set-version.sh $HADOOP_MAJOR_VERSION"
 
 popd >/dev/null
