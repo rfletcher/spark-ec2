@@ -298,6 +298,9 @@ def parse_args():
     parser.add_option(
         "--instance-profile-name", default=None,
         help="IAM profile name to launch instances under")
+    parser.add_option(
+        "--name-prefix", default="spark-",
+        help="A prefix to include in the instance names")
 
     (opts, args) = parser.parse_args()
     if len(args) != 2:
@@ -444,7 +447,7 @@ def launch_cluster(conn, opts, cluster_name):
             slave_reqs = conn.request_spot_instances(
                 price=opts.spot_price,
                 image_id=opts.ami,
-                launch_group="launch-group-%s" % cluster_name,
+                launch_group="launch-group-%s%s" % (opts.name_prefix, cluster_name),
                 placement=zone,
                 count=num_slaves_this_zone,
                 key_name=opts.key_pair,
@@ -556,13 +559,13 @@ def launch_cluster(conn, opts, cluster_name):
     print('Applying tags to master nodes')
     for master in master_nodes:
         master.add_tags(
-            dict(additional_tags, Name='spark-{cn}-master'.format(cn=cluster_name))
+            dict(additional_tags, Name='{prefix}{cn}-master'.format(prefix=opts.name_prefix, cn=cluster_name))
         )
 
     print('Applying tags to slave nodes')
     for slave in slave_nodes:
         slave.add_tags(
-            dict(additional_tags, Name='spark-{cn}-slave'.format(cn=cluster_name))
+            dict(additional_tags, Name='{prefix}{cn}-slave'.format(prefix=opts.name_prefix, cn=cluster_name))
         )
 
     if opts.tag_volumes:
@@ -599,8 +602,8 @@ def get_existing_cluster(conn, opts, cluster_name, die_on_error=True):
         instances = itertools.chain.from_iterable(r.instances for r in reservations)
         return [i for i in instances if i.state not in ["shutting-down", "terminated"]]
 
-    master_instances = get_instances(["spark-" + cluster_name + "-master"])
-    slave_instances = get_instances(["spark-" + cluster_name + "-slave"])
+    master_instances = get_instances([opts.name_prefix + cluster_name + "-master"])
+    slave_instances = get_instances([opts.name_prefix + cluster_name + "-slave"])
 
     if any((master_instances, slave_instances)):
         print("Found {m} master{plural_m}, {s} slave{plural_s}.".format(
