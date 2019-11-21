@@ -445,19 +445,19 @@ def launch_cluster(conn, opts, cluster_name):
         for zone in zones:
             num_slaves_this_zone = get_partition(opts.slaves, num_zones, i)
             slave_reqs = conn.request_spot_instances(
-                price=opts.spot_price,
+                block_device_map=block_map,
+                count=num_slaves_this_zone,
                 image_id=opts.ami,
+                instance_profile_name=opts.instance_profile_name,
+                instance_type=opts.instance_type,
+                key_name=opts.key_pair,
                 launch_group="launch-group-%s%s" % (opts.name_prefix, cluster_name),
                 placement=zone,
-                count=num_slaves_this_zone,
-                key_name=opts.key_pair,
-                security_group_ids=additional_group_ids,
-                instance_type=opts.instance_type,
-                block_device_map=block_map,
-                subnet_id=opts.subnet_id,
                 placement_group=opts.placement_group,
-                user_data=user_data_content,
-                instance_profile_name=opts.instance_profile_name)
+                price=opts.spot_price,
+                security_group_ids=additional_group_ids,
+                subnet_id=opts.subnet_id,
+                user_data=user_data_content)
             my_req_ids += [req.id for req in slave_reqs]
             i += 1
 
@@ -503,18 +503,18 @@ def launch_cluster(conn, opts, cluster_name):
             num_slaves_this_zone = get_partition(opts.slaves, num_zones, i)
             if num_slaves_this_zone > 0:
                 slave_res = image.run(
-                    key_name=opts.key_pair,
-                    security_group_ids=[slave_group.id] + additional_group_ids,
-                    instance_type=opts.instance_type,
-                    placement=zone,
-                    min_count=num_slaves_this_zone,
-                    max_count=num_slaves_this_zone,
                     block_device_map=block_map,
-                    subnet_id=opts.subnet_id,
-                    placement_group=opts.placement_group,
-                    user_data=user_data_content,
                     instance_initiated_shutdown_behavior=opts.instance_initiated_shutdown_behavior,
-                    instance_profile_name=opts.instance_profile_name)
+                    instance_profile_name=opts.instance_profile_name,
+                    instance_type=opts.instance_type,
+                    key_name=opts.key_pair,
+                    max_count=num_slaves_this_zone,
+                    min_count=num_slaves_this_zone,
+                    placement=zone,
+                    placement_group=opts.placement_group,
+                    security_group_ids=[slave_group.id] + additional_group_ids,
+                    subnet_id=opts.subnet_id,
+                    user_data=user_data_content)
                 slave_nodes += slave_res.instances
                 print("Launched {s} slave{plural_s} in {z}, regid = {r}".format(
                       s=num_slaves_this_zone,
@@ -529,18 +529,18 @@ def launch_cluster(conn, opts, cluster_name):
     if opts.zone == 'all':
         opts.zone = random.choice(conn.get_all_zones()).name
     master_res = image.run(
-        key_name=opts.key_pair,
-        security_group_ids=additional_group_ids,
-        instance_type=master_type,
-        placement=opts.zone,
-        min_count=1,
-        max_count=1,
         block_device_map=block_map,
-        subnet_id=opts.subnet_id,
-        placement_group=opts.placement_group,
-        user_data=user_data_content,
         instance_initiated_shutdown_behavior=opts.instance_initiated_shutdown_behavior,
-        instance_profile_name=opts.instance_profile_name)
+        instance_profile_name=opts.instance_profile_name,
+        instance_type=master_type,
+        key_name=opts.key_pair,
+        max_count=1,
+        min_count=1,
+        placement=opts.zone,
+        placement_group=opts.placement_group,
+        security_group_ids=additional_group_ids,
+        subnet_id=opts.subnet_id,
+        user_data=user_data_content)
 
     master_nodes = master_res.instances
     print("Launched master in %s, regid = %s" % (zone, master_res.id))
