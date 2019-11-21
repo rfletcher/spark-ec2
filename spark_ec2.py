@@ -512,7 +512,7 @@ def launch_cluster(conn, opts, cluster_name):
                     min_count=num_slaves_this_zone,
                     placement=zone,
                     placement_group=opts.placement_group,
-                    security_group_ids=[slave_group.id] + additional_group_ids,
+                    security_group_ids=additional_group_ids,
                     subnet_id=opts.subnet_id,
                     user_data=user_data_content)
                 slave_nodes += slave_res.instances
