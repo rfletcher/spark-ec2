@@ -122,8 +122,8 @@ def setup_external_libs(libs):
 external_libs = [
     {
         "name": "boto",
-        "version": "2.34.0",
-        "md5": "5556223d2d0cc4d06dd4829e671dcecd"
+        "version": "2.49.0",
+        "md5": "e9b79f80198da059d9a8055a5352fd6d"
     }
 ]
 
